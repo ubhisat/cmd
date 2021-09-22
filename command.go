@@ -20,6 +20,7 @@ type Command struct {
 	StdoutWriter io.Writer
 	WorkingDir   string
 	executed     bool
+	waitForComplete bool
 	exitCode     int
 	// stderr and stdout retrieve the output after the command was executed
 	stderr   bytes.Buffer
@@ -80,6 +81,10 @@ func NewCommand(cmd string, options ...func(*Command)) *Command {
 func WithStandardStreams(c *Command) {
 	c.StdoutWriter = io.MultiWriter(os.Stdout, &c.stdout, &c.combined)
 	c.StderrWriter = io.MultiWriter(os.Stderr, &c.stdout, &c.combined)
+}
+
+func WithWaitCompletion(c *Command) {
+	c.waitForComplete = true
 }
 
 // WithCustomStdout allows to add custom writers to stdout
@@ -200,7 +205,11 @@ func (c *Command) Execute() error {
 		timeoutChan = time.After(c.Timeout)
 	}
 
-	err := cmd.Start()
+	if c.waitForComplete {
+		err := cmd.Run()
+	} else {
+		err := cmd.Start()
+	}
 	if err != nil {
 		return err
 	}
