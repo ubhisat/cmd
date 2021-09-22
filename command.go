@@ -207,11 +207,14 @@ func (c *Command) Execute() error {
 
 	if c.waitForComplete {
 		err := cmd.Run()
+		if err != nil {
+			return err
+		}
 	} else {
 		err := cmd.Start()
-	}
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	done := make(chan error, 1)
