@@ -1,4 +1,4 @@
-module github.com/commander-cli/cmd
+module github.com/ubhisat/cmd
 
 go 1.12
 
